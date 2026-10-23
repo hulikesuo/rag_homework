@@ -2,7 +2,7 @@
 
 ## 代码仓库与本地数据
 
-当前默认分支 `main` 已采用纯代码版本，只发布 `src/`、`demo/`、`experiments/`、`scripts/` 下的 Python 源码，以及 README、依赖清单、`.gitignore` 和无密钥的 `.env.example`。`main` 的独立根提交不继承原分支中的数据提交历史；`code-only` 为此前发布时保留的分支，后续代码更新以 `main` 为准。
+当前默认分支 `main` 已采用纯代码版本，只发布 `src/`、`demo/`、`experiments/`、`scripts/` 下的 Python 源码，以及 README、依赖清单、部署文档、Docker/一键启动文件、`.gitignore` 和无密钥的 `.env.example`。`main` 的独立根提交不继承原分支中的数据提交历史；`code-only` 为此前发布时保留的分支，后续代码更新以 `main` 为准。
 
 **不上传**原始文档、题集、标注表、实验结果、报告、压缩包、模型/索引缓存或真实 `.env`。这些文件仍保留在原电脑，本仓库不提供下载地址。下文的实验数值与验收记录描述本地完整版本，不代表代码分支包含相应数据或已生成的验收产物。
 
@@ -40,6 +40,7 @@ if (-not (Test-Path -LiteralPath .env)) { Copy-Item -LiteralPath .env.example -D
 | T5 重排与压缩 | `src/rerank.py`、`experiments/t5_rerank_compress.py` | 共享 hybrid top-5，比较 direct/规则/CrossEncoder top-3，再比较压缩前后。**压缩已实际接入 `compression.InformationCompressor().fit(docs.values())` 的语料 unigram 自信息压缩，不是字符重合抽句。** 90条重排、18条成对压缩记录。 |
 | T6 高级检索 | `experiments/t6_advanced.py` | 路由（21条 LLM 路由+9条 invalid fallback 退化为启发式）、gold level 的 oracle 支持分支、最多两轮循环。`fig_t6_flow.png` 已生成。 |
 | T7 分层评测与忠实度 | `src/evaluate.py`、`experiments/t7_eval.py` | 分难度检索指标、缓存核对、启发式诊断与 30 题 LLM judge（`glm-5.3-flash`，`metric_type=llm_judge_not_human`）。最新批次 168 claims；faithfulness 4.8333、correctness 4.5333、micro 幻觉率 0.0298；最差 5 条证据已审计。 |
+| T8-4 工程化 | `Dockerfile`、`compose.yaml`、`start.ps1`、`start.sh`、`demo/app.py` | 提供容器部署、跨平台一键启动及 Gradio 问答/证据界面；完整步骤见 `docs/T8_ENGINEERING.md`。3分钟录像需另行录制，不能用部署文件代替。 |
 
 两条压缩路径（`src/compression.py` 自信息压缩与 `rerank.compress_extractive` 抽取式）现共用 `src/textutil.py` 的句边界规则。纯函数回归检查不加载模型、不调用 API，也不写实验结果：
 
@@ -70,6 +71,12 @@ rag_homework/
 │   ├── check_submission_results.py   # D3/D4 同步一致性专项校验（非当前总验收入口）
 │   └── make_figures.py               # 根据实际 CSV 字段生成图
 ├── demo/app.py                       # Gradio 演示
+├── Dockerfile                        # Python CPU镜像，非root运行与UI健康检查
+├── .dockerignore                     # 排除数据、密钥、缓存与实验产物
+├── compose.yaml                      # 只读语料挂载、模型/结果命名卷
+├── start.ps1                         # Windows一键启动
+├── start.sh                          # Bash一键启动
+├── docs/T8_ENGINEERING.md             # 部署、故障排查与3分钟录像清单
 ├── requirements.txt
 ├── .env.example
 ├── .gitignore
@@ -95,6 +102,23 @@ results/                               # 正式42文件及acceptance_20261023补
 **T7 完成状态**：2026-10-23 的验收记录确认30题真实 LLM judge 全部评分成功（30/30、0条错误），最新批次共168个claims；T7 离线回归为71/71通过。对应产物在本地 `results/acceptance_20261023/t7/`，不是待重跑任务，也不是人工评分。
 
 ## 3. 安装与模型配置
+
+### T8-4 一键启动
+
+先准备自己的 `data/corpus/` 和 `.env`。已有 Python 环境时，Windows 执行 `powershell -ExecutionPolicy Bypass -File .\start.ps1 -NoInstall`；需要自动创建虚拟环境并安装依赖时去掉 `-NoInstall`。Linux/macOS 执行 `bash start.sh`。界面默认访问 `http://127.0.0.1:7860`。
+
+```powershell
+# 已配好依赖的本机环境：只预检，不调用API或下载模型
+powershell -ExecutionPolicy Bypass -File .\start.ps1 -NoInstall -Check
+# Docker Desktop已启动：构建并后台运行，等待UI健康检查
+powershell -ExecutionPolicy Bypass -File .\start.ps1 -Docker
+```
+
+首次缺少 `.env` 时脚本只创建模板并提示填写，不会覆盖已有配置。Docker 使用独立模型缓存，首次提问需要下载模型；本机已有缓存不等于容器已有缓存。容器健康状态只代表界面存活，不代表完整问答成功。默认不公开到局域网，数据/密钥不进入镜像。
+
+运行 `python -I -B scripts/check_engineering.py` 执行部署离线回归。完整参数、停机命令与录像步骤见 `docs/T8_ENGINEERING.md`；**课程要求的3分钟录像仍需实际录制**。
+
+### 手动安装
 
 Python 3.10+，建议建立虚拟环境。
 

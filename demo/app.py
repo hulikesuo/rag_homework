@@ -28,6 +28,8 @@ def get_pipe():
     global _PIPE
     if _PIPE is None:
         docs = loader.read_all_docs(config.CORPUS_DIR)
+        if not docs:
+            raise RuntimeError("语料为空：请先准备可读取的本地文档。")
         _PIPE = pipeline.RAGPipeline(docs)
     return _PIPE
 
@@ -111,5 +113,18 @@ def build_ui():
     return demo
 
 
+def main():
+    """Keep native launches private; Docker explicitly opts into 0.0.0.0."""
+    host = os.environ.get("RAG_HOST", "127.0.0.1")
+    try:
+        port = int(os.environ.get("RAG_PORT", "7860"))
+        if not 1 <= port <= 65535:
+            raise ValueError
+    except ValueError as exc:
+        raise SystemExit("RAG_PORT must be between 1 and 65535.") from exc
+    build_ui().queue(default_concurrency_limit=1).launch(
+        server_name=host, server_port=port, share=False, show_error=False)
+
+
 if __name__ == "__main__":
-    build_ui().launch(server_name="127.0.0.1", server_port=7860, show_error=True)
+    main()

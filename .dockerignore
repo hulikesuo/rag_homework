@@ -1,0 +1,11 @@
+# Only runtime sources and dependency manifests may enter the build context.
+**
+!Dockerfile
+!.dockerignore
+!requirements.txt
+!src/
+!src/*.py
+!demo/
+!demo/*.py
+**/__pycache__/**
+**/*.pyc

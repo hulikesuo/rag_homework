@@ -5,6 +5,7 @@ faiss-cpu>=1.7                    # 稠密向量索引
 rank-bm25>=0.2                    # BM25 稀疏检索
 langchain-core>=0.3,<0.4          # Python 3.10+；RunnableLambda 基线链
 openai>=1.0                       # 云端 LLM 调用（兼容 Ollama 的 OpenAI 端点）
+requests>=2.31                    # generator 模块的直接运行依赖
 brotlicffi>=1.2                   # openai 新版依赖 httpx2，旧版 brotlicffi 会报参数错误
 
 # 若语料为 PDF 需先：pip install pypdf  （可选、非阻塞；当前语料是 docx，可不装）

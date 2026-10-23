@@ -1,9 +1,18 @@
 # Code-only publication: deny by default, then allow source and setup files.
 /*
 !/.gitignore
+!/.gitattributes
 !/README.md
 !/requirements.txt
 !/.env.example
+!/Dockerfile
+!/.dockerignore
+!/compose.yaml
+!/start.ps1
+!/start.sh
+!/docs/
+/docs/**
+!/docs/T8_ENGINEERING.md
 !/src/
 !/demo/
 !/experiments/

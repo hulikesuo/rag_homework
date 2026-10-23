@@ -1,0 +1,44 @@
+services:
+  rag:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rag-homework:local
+    init: true
+    env_file:
+      - .env
+    environment:
+      RAG_HOST: "0.0.0.0"
+      RAG_PORT: "7860"
+      HF_HOME: /app/.cache/huggingface
+      RAG_CORPUS_DIR: /app/data/corpus
+      RAG_RESULTS_DIR: /app/results
+      GRADIO_ANALYTICS_ENABLED: "False"
+      LLM_BASE_URL: "${LLM_BASE_URL:?Set LLM_BASE_URL in .env}"
+      LLM_API_KEY: "${LLM_API_KEY:?Set LLM_API_KEY in .env}"
+      LLM_MODEL: "${LLM_MODEL:?Set LLM_MODEL in .env}"
+      RERANK_MODEL_NAME: "${RERANK_MODEL_NAME:-}"
+      RAG_OFFLINE: "${RAG_OFFLINE:-0}"
+      HF_HUB_OFFLINE: "${HF_HUB_OFFLINE:-0}"
+      TRANSFORMERS_OFFLINE: "${TRANSFORMERS_OFFLINE:-0}"
+      HF_ENDPOINT: "${HF_ENDPOINT:-https://hf-mirror.com}"
+    ports:
+      - "${RAG_BIND_ADDRESS:-127.0.0.1}:${RAG_PORT:-7860}:7860"
+    volumes:
+      - type: bind
+        source: ./data/corpus
+        target: /app/data/corpus
+        read_only: true
+        bind:
+          create_host_path: false
+      - model-cache:/app/.cache/huggingface
+      - runtime-results:/app/results
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+volumes:
+  model-cache:
+  runtime-results:

@@ -27,7 +27,7 @@ if os.path.isfile(_ENV_FILE):
             os.environ.setdefault(_k.strip(), _v.strip())
 
 # ------- 路径 -------
-CORPUS_DIR = os.path.join(PROJECT_ROOT, "data", "corpus")   # 原始文档
+CORPUS_DIR = os.environ.get("RAG_CORPUS_DIR", os.path.join(PROJECT_ROOT, "data", "corpus"))
 EVAL_JSONL = os.environ.get("RAG_EVAL_JSONL", os.path.join(
     PROJECT_ROOT, "data", "eval", "qa_set.jsonl"))
 RESULTS_DIR = os.environ.get("RAG_RESULTS_DIR", os.path.join(PROJECT_ROOT, "results"))
