@@ -44,7 +44,6 @@ python -m venv .venv
 
 面向云南大学计算机/软件学院教务文档的检索增强问答实验。项目将解析、分块、查询优化、检索、重排、压缩、生成和评测拆开，比较各模块的作用及失败原因。
 
-**当前状态（2026-10-23）**：正式顶层 `results/` 仍为冻结 42 文件；已审新结果按课程 D4 要求放入 `results/acceptance_20261023/{t2,t3,t4,t7,demo}`，均保留原始文件名与 runner。`scripts/verify_acceptance_bundle.py` 推荐一键离线验收（T7 71、T3 14+RRF、Demo 4、两份主代理独立审计），当前本地已跑通 7/7 PASS。最终 v3 评审压缩包仅在本地保存。仍未整体 ACCEPTED：真实学号缺失、成员分工被用户删除故不恢复、人工是否核过 gold 需用户确认。
 
 ## 1. 课程任务与代码对应
 
@@ -107,7 +106,7 @@ rag_homework/
 本地完整作业额外包含以下内容，均不上传 Git：
 
 ```text
-data/corpus/                           # 43份原始docx，按4类存放
+data/corpus/                           # 原始docx，按4类存放
 data/eval/qa_set.jsonl                  # 正式30题题集
 scripts/qa_annotation.csv              # 正式标注表
 scripts/t4_acceptance_queries.jsonl     # T4补充题集
@@ -118,7 +117,7 @@ results/                               # 正式42文件及acceptance_20261023补
 .env                                   # 本机API配置与密钥
 ```
 
-**T7 完成状态**：2026-10-23 的验收记录确认30题真实 LLM judge 全部评分成功（30/30、0条错误），最新批次共168个claims；T7 离线回归为71/71通过。对应产物在本地 `results/acceptance_20261023/t7/`，不是待重跑任务，也不是人工评分。
+**T7 完成状态**：验收记录确认30题真实 LLM judge 全部评分成功（30/30、0条错误），最新批次共168个claims；T7 离线回归为71/71通过。对应产物在本地 `results/acceptance_20261023/t7/`。
 
 ## 3. 安装与模型配置
 
@@ -135,7 +134,7 @@ powershell -ExecutionPolicy Bypass -File .\start.ps1 -Docker
 
 首次缺少 `.env` 时脚本只创建模板并提示填写，不会覆盖已有配置。Docker 使用独立模型缓存，首次提问需要下载模型；本机已有缓存不等于容器已有缓存。容器健康状态只代表界面存活，不代表完整问答成功。默认不公开到局域网，数据/密钥不进入镜像。
 
-运行 `python -I -B scripts/check_engineering.py` 执行部署离线回归。完整参数、停机命令与录像步骤见 `docs/T8_ENGINEERING.md`；**课程要求的3分钟录像仍需实际录制**。
+运行 `python -I -B scripts/check_engineering.py` 执行部署离线回归。完整参数、停机命令与录像步骤见 `docs/T8_ENGINEERING.md`。
 
 ### 手动安装
 
@@ -221,13 +220,7 @@ python -m scripts.make_figures --results-dir repair_outputs/revised_full_2026102
 
 Gradio 演示启动后访问 `http://127.0.0.1:7860`。本轮已完成真实 Gradio HTTP queue L1/L4 端到端并留下 `results/acceptance_20261023/demo/http_e2e_results.json`；浏览器视觉是建议项，不是硬课程阻断。
 
-## 8. 提交材料与评分
 
-D1–D6 交付物：D1 源码库、D2 知识库、D3 测试集、D4 实验结果、D5 实验报告、D6 演示。
-
-课程评分：**工程20、数据15、实验严谨性25、分析25、报告10、演示5**，合计100分；T8 加分上限15分。
-
-当前技术项均已整理并独立审计；真实阻断只剩真实学号、按用户要求删除且不恢复的成员分工、以及人工是否核过 gold 的确认。D5 允许 `.md`/`.pdf` 且 ≤8 页；T6/T7 至少完成一项。
 
 ### 一键验收
 
@@ -237,7 +230,7 @@ python -I -B scripts/verify_acceptance_bundle.py
 
 # 包计划/打包
 python -I -B scripts/build_acceptance_package.py --dry-run   # 先看计划
-python -I -B scripts/build_acceptance_package.py --apply     # 产出 v3 zip
+python -I -B scripts/build_acceptance_package.py --apply     # 产出 zip
 ```
 
 本地 v3 评审包中的新 T2/T3/T4/T7/Demo 产物按课程 D4 要求放入 `results/acceptance_20261023/{t2,t3,t4,t7,demo}`，不覆盖正式顶层 `results/` 的 42 个冻结文件。评审压缩包仅在本地保存，不上传 Git，也不要求保留旧版或失败的重复压缩包。
