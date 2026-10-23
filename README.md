@@ -2,7 +2,7 @@
 
 ## 代码仓库与本地数据
 
-`code-only` 分支只发布 `src/`、`demo/`、`experiments/`、`scripts/` 下的 Python 源码，以及 README、依赖清单、`.gitignore` 和无密钥的 `.env.example`。该分支采用独立根提交，不继承原分支中的数据提交历史。
+当前默认分支 `main` 已采用纯代码版本，只发布 `src/`、`demo/`、`experiments/`、`scripts/` 下的 Python 源码，以及 README、依赖清单、`.gitignore` 和无密钥的 `.env.example`。`main` 的独立根提交不继承原分支中的数据提交历史；`code-only` 为此前发布时保留的分支，后续代码更新以 `main` 为准。
 
 **不上传**原始文档、题集、标注表、实验结果、报告、压缩包、模型/索引缓存或真实 `.env`。这些文件仍保留在原电脑，本仓库不提供下载地址。下文的实验数值与验收记录描述本地完整版本，不代表代码分支包含相应数据或已生成的验收产物。
 
@@ -25,7 +25,7 @@ if (-not (Test-Path -LiteralPath .env)) { Copy-Item -LiteralPath .env.example -D
 
 面向云南大学计算机/软件学院教务文档的检索增强问答实验。项目将解析、分块、查询优化、检索、重排、压缩、生成和评测拆开，比较各模块的作用及失败原因。
 
-**当前状态（2026-10-23）**：正式顶层 `results/` 仍为冻结 42 文件；已审新结果按课程 D4 要求放入 `results/acceptance_20261023/{t2,t3,t4,t7,demo}`，均保留原始文件名与 runner。`scripts/verify_acceptance_bundle.py` 推荐一键离线验收（T7 71、T3 14+RRF、Demo 4、两份主代理独立审计），当前本地已跑通 7/7 PASS。最终评审包为 `大模型6组_RAG作业_验收版_20261023_v3.zip`。仍未整体 ACCEPTED：真实学号缺失、成员分工被用户删除故不恢复、人工是否核过 gold 需用户确认。
+**当前状态（2026-10-23）**：正式顶层 `results/` 仍为冻结 42 文件；已审新结果按课程 D4 要求放入 `results/acceptance_20261023/{t2,t3,t4,t7,demo}`，均保留原始文件名与 runner。`scripts/verify_acceptance_bundle.py` 推荐一键离线验收（T7 71、T3 14+RRF、Demo 4、两份主代理独立审计），当前本地已跑通 7/7 PASS。最终 v3 评审压缩包仅在本地保存。仍未整体 ACCEPTED：真实学号缺失、成员分工被用户删除故不恢复、人工是否核过 gold 需用户确认。
 
 ## 1. 课程任务与代码对应
 
@@ -50,11 +50,10 @@ python -I -B scripts/check_handover_issues.py --root .
 
 ## 2. 项目结构
 
+Git 仓库中的代码结构（不包含本地数据与验收产物）：
+
 ```text
 rag_homework/
-├── data/
-│   ├── corpus/                       # 43份原始 docx，按4类存放
-│   └── eval/qa_set.jsonl             # 正式题集（已同步修订候选）
 ├── src/                              # 核心模块，见上表
 │   ├── config.py                     # 路径、模型、默认参数、.env 读取
 │   ├── loader.py                     # 文档解析，含 docx
@@ -62,28 +61,38 @@ rag_homework/
 ├── experiments/                      # run_all.py 与 t1–t7 实验编排
 ├── scripts/
 │   ├── build_qaset.py                # 分块清单、标注校验与转换
-│   ├── qa_annotation.csv             # 正式标注表
-│   ├── llm_judge_t7.py               # LLM 忠实度评分脚本（待真实重跑）
-│   ├── check_t7_judge.py             # T7 judge 回归测试（67/67通过）
+│   ├── llm_judge_t7.py               # LLM 忠实度评分；本地已完成30/30题真实评分
+│   ├── check_t7_judge.py             # T7 judge 离线回归测试（最新验收71/71通过）
+│   ├── verify_acceptance_bundle.py   # 当前一键离线验收入口（需本地完整材料）
 │   ├── restore_submission_results.py # D4 结果恢复脚本（默认 dry-run，--apply 安全落盘）
 │   ├── check_restoration.py          # 恢复后独立校验脚本
-│   ├── prepare_submission_results.py # 旧 D3/D4 对齐参考（不推荐运行，见恢复脚本）
-│   ├── check_submission_results.py   # 旧对齐校验参考
+│   ├── prepare_submission_results.py # D3/D4 兼容实现；恢复脚本读取其RESULT_FILES清单
+│   ├── check_submission_results.py   # D3/D4 同步一致性专项校验（非当前总验收入口）
 │   └── make_figures.py               # 根据实际 CSV 字段生成图
 ├── demo/app.py                       # Gradio 演示
-├── repair_outputs/
-│   ├── qa_set_revised.jsonl           # 修订候选题集（与正式题集字节一致）
-│   ├── qa_annotation_revised.csv      # 对应候选标注表
-│   ├── qa_set_review.md               # 逐题复核记录
-│   ├── verified_20261022/             # 早期部分复测，保留作历史记录
-│   ├── revised_full_20261022/         # 本轮修订题集完整结果与图表（源）
-│   ├── t7_judge_audit.json           # T7 审计输出
-│   └── t7_worst5_evidence.md         # 最差五题证据审计
-├── results/                          # 正式结果目录（42文件含manifest）
 ├── requirements.txt
 ├── .env.example
-└── 报告.md
+├── .gitignore
+└── README.md
 ```
+
+**兼容脚本保留原因**：`restore_submission_results.py` 通过 AST 读取 `prepare_submission_results.py` 的39项 `RESULT_FILES` 清单，验收源码清单也包含上述两个兼容脚本，不能将它们视为无用文件直接删除。它们不是推荐的日常入口；需要恢复结果时使用 `restore_submission_results.py`，恢复后使用 `check_restoration.py`，整体技术验收使用 `verify_acceptance_bundle.py`。
+
+本地完整作业额外包含以下内容，均不上传 Git：
+
+```text
+data/corpus/                           # 43份原始docx，按4类存放
+data/eval/qa_set.jsonl                  # 正式30题题集
+scripts/qa_annotation.csv              # 正式标注表
+scripts/t4_acceptance_queries.jsonl     # T4补充题集
+scripts/t4_supplement_queries.jsonl     # T4补充题集
+repair_outputs/                        # 修订题集、实验原始记录与验收证据
+results/                               # 正式42文件及acceptance_20261023补充结果
+报告.md                                # 本地实验报告
+.env                                   # 本机API配置与密钥
+```
+
+**T7 完成状态**：2026-10-23 的验收记录确认30题真实 LLM judge 全部评分成功（30/30、0条错误），最新批次共168个claims；T7 离线回归为71/71通过。对应产物在本地 `results/acceptance_20261023/t7/`，不是待重跑任务，也不是人工评分。
 
 ## 3. 安装与模型配置
 
@@ -159,7 +168,7 @@ RAG_OFFLINE=1 python -m experiments.run_all t2 t3 t5 t6 --generate --eval repair
 | T6 | 30路由/分支，6题循环 | 路由 Recall@5 0.7915；judge sufficient 0.5000；ROUGE-L 0.1855→0.1908 |
 | T7 | 30题检索；LLM judge 30/30 | Hit@5 0.8667、Recall@5 0.7972；LLM faithfulness 均值 4.8333、correctness 4.5333、micro 幻觉率 0.0298（最新 batch 168 claims） |
 
-结论边界：T7 的 `heuristic_*` 不替代真实忠实度；T5 压缩 ROUGE-L 下降不能称质量正收益；旧 rewrite 无严格成功案例，新 subquery 的 q28 已用真实子查询找回证据并综合正确，但 RRF top5 仍 0，union19 不能当 Recall；T4 已在补充集中达到严格 5+5，80 账为探索窗口；T7 LLM judge 同模型自评偏差，**不能称人工评分**。压缩回归 17/17、交接 7/7、T3 离线 12/12、T7 离线 67/67 均已通过，但这些只是离线/非整体验收。
+结论边界：T7 的 `heuristic_*` 不替代真实忠实度；T5 压缩 ROUGE-L 下降不能称质量正收益；旧 rewrite 无严格成功案例，新 subquery 的 q28 已用真实子查询找回证据并综合正确，但 RRF top5 仍 0，union19 不能当 Recall；T4 已在补充集中达到严格 5+5，80 账为探索窗口；T7 LLM judge 同模型自评偏差，**不能称人工评分**。压缩回归 17/17、交接 7/7 均已通过；最新验收记录中的 T3 离线为14/14、T7 离线为71/71，整体技术检查为7/7 PASS，但不替代真实学号、成员分工及人工gold复核等课程要求的确认。
 
 脚本按实际字段生成图表：
 
@@ -188,4 +197,4 @@ python -I -B scripts/build_acceptance_package.py --dry-run   # 先看计划
 python -I -B scripts/build_acceptance_package.py --apply     # 产出 v3 zip
 ```
 
-评审包文件名：`大模型6组_RAG作业_验收版_20261023_v3.zip`。新 T2/T3/T4/T7/Demo 产物按课程 D4 要求放入包内 `results/acceptance_20261023/{t2,t3,t4,t7,demo}`，不覆盖正式顶层 `results/` 的 42 个冻结文件。旧的 `大模型6组_RAG作业_验收版_20261023.zip` 与 `大模型6组_RAG作业_验收版_20261023_v2.zip` 保留不动。
+本地 v3 评审包中的新 T2/T3/T4/T7/Demo 产物按课程 D4 要求放入 `results/acceptance_20261023/{t2,t3,t4,t7,demo}`，不覆盖正式顶层 `results/` 的 42 个冻结文件。评审压缩包仅在本地保存，不上传 Git，也不要求保留旧版或失败的重复压缩包。
