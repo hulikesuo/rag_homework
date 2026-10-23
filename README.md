@@ -1,25 +1,44 @@
 # RAG 课程实践作业
 
-## 代码仓库与本地数据
+面向云南大学教务文档的检索增强问答（RAG）实验：解析、分块、查询优化、检索、重排、压缩、生成与评测，拆成独立模块对比各环节作用。
 
-当前默认分支 `main` 已采用纯代码版本，只发布 `src/`、`demo/`、`experiments/`、`scripts/` 下的 Python 源码，以及 README、依赖清单、部署文档、Docker/一键启动文件、`.gitignore` 和无密钥的 `.env.example`。`main` 的独立根提交不继承原分支中的数据提交历史；`code-only` 为此前发布时保留的分支，后续代码更新以 `main` 为准。
+## 快速开始
 
-**不上传**原始文档、题集、标注表、实验结果、报告、压缩包、模型/索引缓存或真实 `.env`。这些文件仍保留在原电脑，本仓库不提供下载地址。下文的实验数值与验收记录描述本地完整版本，不代表代码分支包含相应数据或已生成的验收产物。
+仓库只开源代码，不含语料、题集、实验结果、图表、报告或密钥。拿到代码后按下面三步即可跑起来。
 
-新电脑需自行准备并获准使用语料，放入 `data/corpus/`；将兼容的评测题集放入 `data/eval/qa_set.jsonl`。依赖标注表、补充题集、历史结果或报告的脚本，还需自行提供相应本地输入。缺少这些文件时，不能仅凭代码仓库复现完整验收。
+### 1. 配置 LLM
 
-Windows PowerShell 启动示例：
+复制模板并填入你自己的 OpenAI 兼容端点：
+
+```bash
+cp .env.example .env
+```
+
+编辑 `.env`，填 `LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL`。`.env` 不进版本库。
+
+### 2. 准备语料
+
+把获准使用的文档（`docx`/`txt`/`md`/`html`）放进 `data/corpus/`，子目录按类别自由组织。没有语料只能启动界面，无法回答。
+
+### 3. 启动
+
+**Docker（推荐，隔离环境）**
+
+```bash
+docker compose up --build -d
+```
+
+**本机 Python 3.10+**
 
 ```powershell
 python -m venv .venv
 & .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-if (-not (Test-Path -LiteralPath .env)) { Copy-Item -LiteralPath .env.example -Destination .env }
-# 在本机编辑 .env，填写自己的 LLM 服务地址、密钥和模型名；不要提交 .env。
-# 准备好 data/corpus/ 后启动；首次使用需联网下载向量模型。
-& .\.venv\Scripts\python.exe demo\app.py
+& .\.venv\Scripts\python.exe -m demo.app
 ```
 
-启动后访问 `http://127.0.0.1:7860`。生成回答仍会调用配置的 API，可能产生费用。后续提交前请检查 `git diff --cached --name-only`，不要使用 `git add -f` 绕过数据与密钥忽略规则。
+打开 http://127.0.0.1:7860 提问。首次运行会联网下载向量模型（`BAAI/bge-small-zh-v1.5`），之后可用 `RAG_OFFLINE=1` 离线加载。生成回答会调用你配置的 API，可能产生费用。
+
+一键启动脚本：Windows 用 `powershell -ExecutionPolicy Bypass -File .\start.ps1`，Linux/macOS 用 `bash start.sh`；加 `-Docker` / `--docker` 走容器方式。更多部署与排查见 `docs/T8_ENGINEERING.md`。
 
 ---
 
