@@ -1,0 +1,36 @@
+# Code-only publication: deny by default, then allow source and setup files.
+/*
+!/.gitignore
+!/README.md
+!/requirements.txt
+!/.env.example
+!/src/
+!/demo/
+!/experiments/
+!/scripts/
+
+/src/**
+/demo/**
+/experiments/**
+/scripts/**
+!/src/**/
+!/demo/**/
+!/experiments/**/
+!/scripts/**/
+!/src/**/*.py
+!/demo/**/*.py
+!/experiments/**/*.py
+!/scripts/**/*.py
+
+# Secrets, local runtime state, and one-off debug helpers stay local.
+.env
+.env.*
+!/.env.example
+__pycache__/
+*.py[cod]
+_cache/
+.cache/
+.venv/
+venv/
+/scripts/_*.py
+!/scripts/__init__.py

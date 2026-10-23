@@ -1,0 +1,19 @@
+# RAG 课程作业依赖（Python 3.10+）
+# 检索/生成核心
+sentence-transformers>=2.6        # bge-small-zh-v1.5 embedding
+faiss-cpu>=1.7                    # 稠密向量索引
+rank-bm25>=0.2                    # BM25 稀疏检索
+langchain-core>=0.3,<0.4          # Python 3.10+；RunnableLambda 基线链
+openai>=1.0                       # 云端 LLM 调用（兼容 Ollama 的 OpenAI 端点）
+brotlicffi>=1.2                   # openai 新版依赖 httpx2，旧版 brotlicffi 会报参数错误
+
+# 若语料为 PDF 需先：pip install pypdf  （可选、非阻塞；当前语料是 docx，可不装）
+# pypdf>=3.0
+python-docx>=1.0       # 解析 .docx 语料（你的云南大学文档是 docx）
+
+# 数据/可视化
+pandas>=2.0
+matplotlib>=3.7
+
+# D6 演示
+gradio>=4.0
